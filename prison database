@@ -1,0 +1,210 @@
+from datetime import date
+import pickle,os
+
+class prison():#done
+    def input(self,pno):
+        self.prisonerno=pno
+        while True:
+            self.doe=raw_input('Enter date entry as(d,m,y)')
+            l1=self.doe.split()
+            if dates(int(l1[0]),int(l1[1]),int(l1[2])):
+                break
+            else: print 'The given date does not exist please re enter'
+        d1=date(int(l1[2]),int(l1[1]),int(l1[0]))
+        while True:
+            self.dof=raw_input('Enter date exit as(d,m,y)')
+            l2=self.dof.split()
+            if l2[2]<l1[2]:
+                while True:
+                     print 're-enter date'
+                     self.dof=raw_input('Enter date exit as(d,m,y)')
+                     l2=self.dof.split()
+                     if l2[2]>l1[2]:break
+            if dates(int(l2[0]),int(l2[1]),int(l2[2])):break
+            else: print 'The given date does not exist please re enter'
+        d2=date(int(l2[2]),int(l2[1]),int(l2[0]))
+        self.duration=returndate(d1,d2)
+        self.crimeaccused=raw_input('Enter crime')
+        self.name=raw_input('name')
+    def display(self):
+        print self.name,self.prisonerno,self.crimeaccused,self.duration
+
+def add():#done
+    if not os.path.isfile('prisoner.dat'):
+        print "file not exist"
+    else:
+        s1=prison()
+        f1=open('prisoner.dat','ab')
+        f2=open('pno.txt','r')
+        pno=f2.read()
+        pno=int(pno)
+        f2.close()
+        try:
+            while True:
+                pno+=1
+                s1.input(pno)
+                
+                pickle.dump(s1,f1)
+                ch=raw_input('continue')
+                if ch!='yes':
+                    break
+        except EOFError:
+            pass
+        finally:
+            f1.close()
+        f2=open('pno.txt','w')
+        f2.write(str(pno))
+        f2.close()
+
+def disp():#done
+    try:
+        f=open('prisoner.dat','rb')
+        while True:
+            s1=prison()
+            s1=pickle.load(f)
+            s1.display()
+
+    except EOFError:
+        pass
+    finally:
+        f.close()
+
+def delete():#done
+    if not os.path.isfile('prisoner.dat'):
+        print 'file not exist'
+    else:
+        f1=open('prisoner.dat','rb')
+        f2=open("temp.dat",'wb')
+        no=input('pno')
+        s1=prison()
+        flag=0
+        try:
+            while True:
+                    s1=pickle.load(f1)
+                    if s1.prisonerno==no:
+                        pass
+                    else:
+                        s1=pickle.dump(s1,f2)
+                        flag=ArithmeticError
+        except EOFError:
+            if flag==0:
+                print  "No record found whose prisoner no. is",pno
+        finally:
+            f1.close()
+            f2.close()
+        
+        os.remove('prisoner.dat')
+        os.rename('temp.dat','prisoner.dat')
+def search():#done
+    if not os.path.isfile('prisoner.dat'):
+        print 'file not exist'
+    else:
+        f=open('prisoner.dat','rb')
+        s1=prison()
+        ad=int(raw_input("Enter pno to be searched "))
+        try:
+            flag=0
+            while True:
+                s1=pickle.load(f)
+                if s1.prisonerno==ad:
+                    s1.display()
+                    flag=1
+        except EOFError:
+            if flag==0:
+                print "no record not found"
+        finally:
+            f.close()
+def mod():#done
+    if not os.path.isfile('prisoner.dat'):
+        print 'sorry'
+    else:
+        f=open('prisoner.dat','rb+')
+        s1=prison()
+        ad=input('enter pno')
+        nm=raw_input('entername')
+        flag=0
+        try:
+            while True:
+                pos=f.tell()
+                s1=pickle.load(f)
+                if s1.prisonerno==ad:
+                    flag=1
+                    s1.name=nm
+                    f.seek(pos)
+                    pickle.dump(s1,f)
+                    break
+        except EOFError:
+            if flag==0:
+                print 'sorry pno not found'
+        finally:
+            f.close()
+def create():#done
+    f1=open('prisoner.dat','wb')
+    s1=prison()
+    f2=open('pno.txt','r')
+    pno=f2.read()
+    pno=int(pno)
+    f2.close()
+    while True:
+        pno+=1
+        s1.input(pno)
+        pickle.dump(s1,f1)
+        ch=raw_input("continue...yes or no ")
+        if ch.lower()!='yes':
+            break
+    f1.close()
+    f2=open('pno.txt','w')
+    f2.write(str(pno))
+    f2.close()
+
+def dates(d,m,y):
+    #print d,m,y
+    c=0
+    if m in [1,3,5,7,8,10,12]:
+        if d>=1 and d<=31:
+            c+=1
+    elif m in [4,6,9,11]:
+        if d>=1 and d<=30:
+            c+=1
+    elif m==2:
+        if y%4==0 and y%100!=0 or y%400==0:
+            if d>=1 and d<=29:
+                c+=1
+        else:
+            if d>=1 and d<=28:
+                c+=1
+                
+    if c==1:
+        return True
+    else :
+        return False
+
+def diff_dates(date1, date2):
+    return abs(date2-date1).days
+
+def returndate(d1,d2):
+    result1 = diff_dates(d2, d1)
+    print '{} days between {} and {}'.format(result1, d1, d2)
+    return result1
+    
+
+             
+while 1:
+        print """1. Create
+2. Add
+3. Display
+4. Modify
+5. Search
+6. Delete
+7. Exit"""
+        
+        ch = raw_input('Enter Choice')
+        if ch == '1':create()
+        elif ch=='2':add()
+        elif ch=='3':disp()
+        elif ch=='4':mod()
+        elif ch == '5':search()
+        elif ch == '6':delete()
+        elif ch == '7':quit()
+
+
